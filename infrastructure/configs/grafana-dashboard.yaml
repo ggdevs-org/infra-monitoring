@@ -1,0 +1,19 @@
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: node-exporter-full
+  namespace: monitoring
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  folder: "Infrastructure"
+  # Import dashboard from Grafana.com using ID 1860 (Node Exporter Full)
+  grafanaCom:
+    id: 1860
+    revision: 37
+  # Map the datasource variable to our Prometheus datasource
+  datasources:
+    - inputName: "DS_PROMETHEUS"
+      datasourceName: "Prometheus"

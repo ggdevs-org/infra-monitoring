@@ -1,0 +1,58 @@
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: Grafana
+metadata:
+  name: grafana
+  namespace: monitoring
+  labels:
+    dashboards: "grafana"
+spec:
+  config:
+    log:
+      mode: "console"
+      level: "info"
+    auth:
+      disable_login_form: "false"
+    security:
+      admin_user: admin
+      admin_password: admin
+    server:
+      root_url: "http://localhost:3000"
+    # Analytics
+    analytics:
+      reporting_enabled: "false"
+      check_for_updates: "false"
+  deployment:
+    spec:
+      replicas: 1
+      template:
+        spec:
+          containers:
+            - name: grafana
+              image: grafana/grafana:11.4.0
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
+                limits:
+                  memory: 512Mi
+              readinessProbe:
+                httpGet:
+                  path: /api/health
+                  port: 3000
+                initialDelaySeconds: 10
+                periodSeconds: 10
+              livenessProbe:
+                httpGet:
+                  path: /api/health
+                  port: 3000
+                initialDelaySeconds: 30
+                periodSeconds: 10
+  service:
+    spec:
+      type: ClusterIP
+      ports:
+        - name: grafana
+          port: 3000
+          targetPort: 3000
+          protocol: TCP
