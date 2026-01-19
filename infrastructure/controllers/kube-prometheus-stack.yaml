@@ -75,8 +75,8 @@ spec:
             memory: 64Mi
           limits:
             memory: 256Mi
-          storage:
-            emptyDir: {}
+        storage:
+          emptyDir: {}
 
     # Kube-state-metrics for Kubernetes object metrics
     kubeStateMetrics:
