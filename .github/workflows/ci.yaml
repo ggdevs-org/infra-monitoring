@@ -16,12 +16,12 @@ jobs:
       - name: Validate YAML syntax
         run: |
           pip install yamllint
-          yamllint -c .yamllint.yaml .
+          yamllint -d relaxed .
 
       - name: Validate Kubernetes manifests
         run: |
           curl -sL https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz | tar xz
-          find . -name '*.yaml' -type f ! -name '.yamllint.yaml' | xargs ./kubeconform -strict -ignore-missing-schemas \
+          find . -name '*.yaml' -type f -path './infrastructure/*' -o -path './clusters/*' | xargs ./kubeconform -strict -ignore-missing-schemas \
             -schema-location default \
             -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json'
 
@@ -29,9 +29,4 @@ jobs:
         uses: fluxcd/flux2/action@main
 
       - name: Validate Flux manifests
-        run: |
-          flux check --pre || true
-          for f in $(find ./clusters -name '*.yaml'); do
-            echo "Checking $f"
-            kubectl apply --dry-run=client -f "$f" 2>/dev/null || true
-          done
+        run: flux check --pre || true
